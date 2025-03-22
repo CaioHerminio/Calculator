@@ -1,0 +1,139 @@
+import { useState } from 'react';
+
+export default function Calculator() {
+  const [displayValue, setDisplayValue] = useState('0');
+  const [operator, setOperator] = useState(null);
+  const [firstOperand, setFirstOperand] = useState(null);
+  const [waitingForSecondOperand, setWaitingForSecondOperand] = useState(false);
+
+  const handleNumberClick = (number) => {
+    if (waitingForSecondOperand) {
+      setDisplayValue(String(number));
+      setWaitingForSecondOperand(false);
+    } else {
+      setDisplayValue(displayValue === '0' ? String(number) : displayValue + number);
+    }
+  };
+
+  const handleOperatorClick = (nextOperator) => {
+    const inputValue = parseFloat(displayValue);
+
+    if (firstOperand === null) {
+      setFirstOperand(inputValue);
+    } else if (operator) {
+      const result = calculate(firstOperand, inputValue, operator);
+      setDisplayValue(String(result));
+      setFirstOperand(result);
+    }
+
+    setWaitingForSecondOperand(true);
+    setOperator(nextOperator);
+  };
+
+  const handleEqualsClick = () => {
+    const inputValue = parseFloat(displayValue);
+
+    if (firstOperand && operator) {
+      const result = calculate(firstOperand, inputValue, operator);
+      setDisplayValue(String(result));
+      setFirstOperand(null);
+      setOperator(null);
+      setWaitingForSecondOperand(false);
+    }
+  };
+
+  const handleClearClick = () => {
+    setDisplayValue('0');
+    setOperator(null);
+    setFirstOperand(null);
+    setWaitingForSecondOperand(false);
+  };
+
+  const handleDecimalClick = () => {
+    if (waitingForSecondOperand) return;
+    if (!displayValue.includes('.')) {
+      setDisplayValue(displayValue + '.');
+    }
+  };
+
+  const calculate = (firstOperand, secondOperand, operator) => {
+    switch (operator) {
+      case '+':
+        return firstOperand + secondOperand;
+      case '-':
+        return firstOperand - secondOperand;
+      case '*':
+        return firstOperand * secondOperand;
+      case '/':
+        return firstOperand / secondOperand;
+      default:
+        return secondOperand;
+    }
+  };
+
+  return (
+    <div className="calculator">
+      <div className="display">{displayValue}</div>
+
+      <div className="buttons">
+        <button onClick={handleClearClick}>AC</button>
+        <button onClick={() => handleOperatorClick('/')}>/</button>
+        <button onClick={() => handleOperatorClick('*')}>*</button>
+
+        <button onClick={() => handleNumberClick(7)}>7</button>
+        <button onClick={() => handleNumberClick(8)}>8</button>
+        <button onClick={() => handleNumberClick(9)}>9</button>
+        <button onClick={() => handleOperatorClick('-')}>-</button>
+
+        <button onClick={() => handleNumberClick(4)}>4</button>
+        <button onClick={() => handleNumberClick(5)}>5</button>
+        <button onClick={() => handleNumberClick(6)}>6</button>
+        <button onClick={() => handleOperatorClick('+')}>+</button>
+
+        <button onClick={() => handleNumberClick(1)}>1</button>
+        <button onClick={() => handleNumberClick(2)}>2</button>
+        <button onClick={() => handleNumberClick(3)}>3</button>
+        <button onClick={handleEqualsClick}>=</button>
+
+        <button onClick={() => handleNumberClick(0)}>0</button>
+        <button onClick={handleDecimalClick}>.</button>
+      </div>
+
+      <style jsx>{`
+        .calculator {
+          width: 300px;
+          margin: 50px auto;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          overflow: hidden;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .display {
+          background-color: #f0f0f0;
+          text-align: right;
+          padding: 20px;
+          font-size: 2em;
+        }
+
+        .buttons {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+        }
+
+        button {
+          background-color: #fff;
+          border: none;
+          padding: 20px;
+          font-size: 1.5em;
+          cursor: pointer;
+          transition: background-color 0.2s ease;
+        }
+
+        button:hover {
+          background-color: #eee;
+        }
+      `}</style>
+    </div>
+  );
+}
